@@ -1,0 +1,25 @@
+FROM python:3.8-alpine
+
+WORKDIR /docker-flask-app
+
+RUN apk update && apk add --no-cache \
+    gcc \
+    python3-dev \
+    musl-dev \
+    postgresql-dev \
+    build-base \
+    linux-headers \
+    pcre-dev \
+    redis
+
+COPY ./requirements.txt ./
+
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+COPY ./uwsgi-app.ini ./
+COPY ./.env ./
+COPY ./src ./src
+ENV PYTHONPATH /docker-flask-app
+RUN chmod -x src/app/app.py
+
+CMD ["python", "src/app/app.py"]
